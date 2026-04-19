@@ -1,0 +1,30 @@
+name: Fire Escape Monitor
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # Her 10 dakikada bir
+  workflow_dispatch:           # Elle de tetiklenebilir
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Python kur
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Kütüphaneleri kur
+        run: pip install -r requirements.txt
+
+      - name: Botu çalıştır
+        env:
+          DISCORD_TOKEN:      ${{ secrets.DISCORD_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python bot.py
