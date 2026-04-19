@@ -2,13 +2,15 @@ name: Fire Escape Monitor
 
 on:
   schedule:
-    - cron: '*/10 * * * *'   # Her 10 dakikada bir
-  workflow_dispatch:           # Elle de tetiklenebilir
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -28,3 +30,13 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python bot.py
+
+      - name: Repo aktif tut
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          echo "$(date)" > last_run.txt
+          git add last_run.txt
+          git commit -m "Auto: keep alive" || echo "No changes"
+          git push
+
