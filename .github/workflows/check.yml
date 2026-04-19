@@ -1,9 +1,8 @@
 name: Fire Escape Monitor
 
 on:
-  schedule:
-    - cron: '3,13,23,33,43,53 * * * *'
-  workflow_dispatch:
+  workflow_dispatch:  # Google Apps Script'ten gelen emri yakalayan kısım burası
+  # GitHub'ın kendi takvimi iptal edildi, artık sadece dışarıdan tetiklenecek.
 
 jobs:
   check:
@@ -26,9 +25,9 @@ jobs:
 
       - name: Botu çalıştır
         env:
-          DISCORD_TOKEN:      ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python bot.py
 
       - name: Repo aktif tut
@@ -39,5 +38,3 @@ jobs:
           git add last_run.txt
           git commit -m "Auto: keep alive" || echo "No changes"
           git push
-
-
