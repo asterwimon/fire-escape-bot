@@ -14,7 +14,7 @@ COMMAND_CHANNEL_ID = 1283016812212256798
 LOCATOR_BOT_ID     = 1264987788156211200
 
 MAX_PRICE   = 2
-MAX_MINUTES = 420
+MAX_MINUTES = 15
 
 def send_telegram(text: str):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
