@@ -30,6 +30,7 @@ PRODUCTS = [
     ("laser grid seed", 0.25),
     ("shifty block", 140.0),
     ("atm machine", 17.0),
+    ("tavern sign", 4.0),
     ("pillar",        2.0),
 ]
 
