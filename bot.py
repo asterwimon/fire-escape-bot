@@ -29,6 +29,7 @@ PRODUCTS = [
     ("thermonuclear blast", 40.0),
     ("laser grid seed", 0.25),
     ("shifty block", 140.0),
+    ("atm machine", 17.0),
     ("pillar",        2.0),
 ]
 
