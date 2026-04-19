@@ -24,6 +24,11 @@ PRODUCTS = [
     ("megaphone",     4000.0),
     ("vip entrance",  45.0),
     ("display block", 5.0),
+    ("digivend machine", 36.0),
+    ("vending machine", 17.0),
+    ("thermonuclear blast", 40.0),
+    ("laser grid seed", 0.25),
+    ("shifty block", 140.0),
     ("pillar",        2.0),
 ]
 
