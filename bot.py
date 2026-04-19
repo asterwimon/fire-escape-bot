@@ -122,7 +122,7 @@ async def main():
         print(f"📦 {len(all_items)} item parse edildi")
 
         fresh   = [i for i in all_items if i["minutes_ago"] <= MAX_MINUTES]
-        matched = [i for i in fresh if i["price"] <= MAX_PRICE]
+        matched = [i for i in fresh if i["price"] >= MAX_PRICE]
 
         print(f"⏱️ Son {MAX_MINUTES}dk: {len(fresh)} | 💰 Kriter: {len(matched)}")
 
