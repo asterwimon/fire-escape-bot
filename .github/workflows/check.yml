@@ -8,7 +8,7 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     permissions:
       contents: write
 
@@ -39,4 +39,5 @@ jobs:
           git add last_run.txt
           git commit -m "Auto: keep alive" || echo "No changes"
           git push
+
 
