@@ -34,7 +34,10 @@ jobs:
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
+          # Önce uzak sunucudaki (senin yaptığın) değişiklikleri çek ve üzerine ekle
+          git pull origin main --rebase 
           echo "$(date)" > last_run.txt
           git add last_run.txt
           git commit -m "Auto: keep alive" || echo "No changes"
-          git push
+          # Eğer hala çakışma varsa zorlayarak gönder
+          git push origin main
