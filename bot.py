@@ -190,3 +190,19 @@ async def main():
         print("ℹ️ Hiçbir üründe kriter karşılanmadı.")
 
 asyncio.run(main())
+
+from flask import Flask
+import threading
+
+app = Flask(__name__)
+
+@app.route('/')
+def trigger():
+    # Botun ana fonksiyonunu arka planda başlatır
+    threading.Thread(target=lambda: asyncio.run(main())).start()
+    return "Bot tetiklendi!", 200
+
+if __name__ == "__main__":
+    # Sunucu portunu ayarlar
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
