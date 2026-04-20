@@ -165,10 +165,10 @@ async def main():
                 matched = await search_product(client, guild, ch, product_name, max_price)
                 if matched:
                     results[product_name] = matched
-                # Her ürün arasında 12 saniye bekle (son üründe bekleme)
+                # Her ürün arasında 6 saniye bekle (son üründe bekleme)
                 if i < len(PRODUCTS) - 1:
-                    print(f"⏳ 12 saniye bekleniyor...")
-                    await asyncio.sleep(12)
+                    print(f"⏳ 6 saniye bekleniyor...")
+                    await asyncio.sleep(6)
 
             await client.close()
 
