@@ -164,10 +164,10 @@ async def main():
                 matched = await search_product(client, guild, ch, product_name, max_price)
                 if matched:
                     results[product_name] = matched
-                # Her ürün arasında 12 saniye bekle (son üründe bekleme)
+                # Her ürün arasında 6 saniye bekle (son üründe bekleme)
                 if i < len(PRODUCTS) - 1:
-                    print(f"⏳ 12 saniye bekleniyor...")
-                    await asyncio.sleep(12)
+                    print(f"⏳ 6 saniye bekleniyor...")
+                    await asyncio.sleep(6)
 
             await client.close()
 
@@ -190,19 +190,3 @@ async def main():
         print("ℹ️ Hiçbir üründe kriter karşılanmadı.")
 
 asyncio.run(main())
-
-from flask import Flask
-import threading
-
-app = Flask(__name__)
-
-@app.route('/')
-def trigger():
-    # Botun ana fonksiyonunu arka planda başlatır
-    threading.Thread(target=lambda: asyncio.run(main())).start()
-    return "Bot tetiklendi!", 200
-
-if __name__ == "__main__":
-    # Sunucu portunu ayarlar
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
