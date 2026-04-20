@@ -13,7 +13,7 @@ GUILD_ID           = 1144379322677862591
 COMMAND_CHANNEL_ID = 1283016812212256798
 LOCATOR_BOT_ID     = 1264987788156211200
 
-MAX_MINUTES = 480
+MAX_MINUTES = 15
 
 # Her ürün: (arama adı, max fiyat eşiği para/item olarak)
 # 2/1 = 0.5 para/item, 1/1 = 1.0, 45 = 45.0
