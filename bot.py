@@ -15,23 +15,24 @@ LOCATOR_BOT_ID     = 1264987788156211200
 
 MAX_MINUTES = 480
 
-# Her ürün: (arama adı, max fiyat eşiği para/item olarak)
-# 2/1 = 0.5 para/item, 1/1 = 1.0, 45 = 45.0
+# Kriter: her ürün için maksimum birim fiyat (para/item)
+# X/1 formatı için: 2/1=0.5, 3/1=0.33, 4/1=0.25
+# Düz sayı formatı için: 45=45.0, 4000=4000.0
 PRODUCTS = [
-    ("fire escape",   0.5),
-    ("glowy block",   0.5),
-    ("xenoid block",  0.5),
-    ("megaphone",     4000.0),
-    ("vip entrance",  45.0),
-    ("display block", 5.0),
-    ("digivend machine", 36.0),
-    ("vending machine", 17.0),
+    ("fire escape",         0.5),
+    ("glowy block",         0.5),
+    ("xenoid block",        0.5),
+    ("megaphone",           4000.0),
+    ("vip entrance",        45.0),
+    ("display block",       5.0),
+    ("digivend machine",    36.0),
+    ("vending machine",     17.0),
     ("thermonuclear blast", 40.0),
-    ("laser grid seed", 0.25),
-    ("shifty block", 140.0),
-    ("atm machine", 17.0),
-    ("tavern sign", 4.0),
-    ("pillar",        2.0),
+    ("laser grid seed",     0.25),
+    ("shifty block",        140.0),
+    ("atm machine",         17.0),
+    ("tavern sign",         4.0),
+    ("pillar",              2.0),
 ]
 
 def send_telegram(text: str):
@@ -46,14 +47,46 @@ def send_telegram(text: str):
     except Exception as e:
         print(f"❌ Telegram hatası: {e}")
 
-def calc_unit_price(left: int, right: int) -> float:
-    """Gerçek birim fiyat: sağ / sol (para / item)"""
-    if left == 0:
-        return float('inf')
-    return right / left
+def parse_price(line: str):
+    """
+    Discord raw formatından fiyat parse eder.
+    Format: price **35/<:WorldLock:114438...>**
+    veya:   price **35**
+    
+    35/<:WorldLock:...> → items=35, wl=1 → unit_price = 1/35 = 0.028 (35 item = 1 WL)
+    35 → items=1, wl=35 → unit_price = 35/1 = 35.0 (1 item = 35 WL)
+    """
+    # Format: sayı/<:emoji:id> → sol sayı = item adedi, sağ = 1 WL
+    match_slash_emoji = re.search(r'price \*\*(\d+)/<:', line)
+    if match_slash_emoji:
+        items = int(match_slash_emoji.group(1))
+        wl    = 1
+        unit_price = wl / items  # para / item
+        display = f"{items}/1"
+        return unit_price, display
+
+    # Format: sayı/sayı → nadiren ama olabilir
+    match_slash_num = re.search(r'price \*\*(\d+)/(\d+)', line)
+    if match_slash_num:
+        items = int(match_slash_num.group(1))
+        wl    = int(match_slash_num.group(2))
+        unit_price = wl / items
+        display = f"{items}/{wl}"
+        return unit_price, display
+
+    # Format: sadece sayı → 1 item = X WL
+    match_num = re.search(r'price \*\*(\d+)', line)
+    if match_num:
+        wl    = int(match_num.group(1))
+        items = 1
+        unit_price = wl / items
+        display = str(wl)
+        return unit_price, display
+
+    return None, None
 
 def parse_embed(embed: discord.Embed):
-    items = []
+    items_list = []
     text = ""
     if embed.description:
         text += embed.description + "\n"
@@ -69,39 +102,25 @@ def parse_embed(embed: discord.Embed):
         name_match = re.search(r'Located in \*\*([^*]+)\*\*', line)
         name = name_match.group(1).strip() if name_match else "?"
 
-        # Price formatları: "35/<:WorldLock:...>" veya "1/<:WorldLock:...>" veya "35"
-        # Sol/sağ sayıyı çek
-        price_match = re.search(r'price \*\*(\d+)/(\d+)', line)
-        if price_match:
-            left  = int(price_match.group(1))
-            right = int(price_match.group(2))
-        else:
-            # Sadece tek sayı: "price **35**" veya "price **35/<:..."
-            price_match2 = re.search(r'price \*\*(\d+)', line)
-            if not price_match2:
-                continue
-            left  = 1
-            right = int(price_match2.group(1))
-
-        unit_price = calc_unit_price(left, right)
+        unit_price, display = parse_price(line)
+        if unit_price is None:
+            continue
 
         ts_match = re.search(r'<t:(\d+):[^>]*>', line)
         if not ts_match:
             continue
         minutes_ago = (now - int(ts_match.group(1))) / 60
 
-        items.append({
-            "name":       name,
-            "left":       left,
-            "right":      right,
-            "unit_price": unit_price,
+        items_list.append({
+            "name":        name,
+            "unit_price":  unit_price,
+            "display":     display,
             "minutes_ago": round(minutes_ago, 1),
-            "display":    f"{left}/{right}" if left != 1 else str(right),
         })
-    return items
+    return items_list
 
 async def search_product(client, guild, ch, product_name, max_unit_price):
-    print(f"\n🔍 Aranıyor: {product_name}")
+    print(f"\n🔍 Aranıyor: {product_name} (max: {max_unit_price} WL/item)")
 
     cmds = await guild.application_commands()
     search_cmd = next(
@@ -112,42 +131,46 @@ async def search_product(client, guild, ch, product_name, max_unit_price):
         print("❌ /search bulunamadı!")
         return []
 
+    # Önceki mesajları temizle — yeni cevabı doğru yakala
+    last_msg_id = None
+    async for msg in ch.history(limit=1):
+        last_msg_id = msg.id
+
     def check_msg(msg):
         return (
             msg.channel.id == COMMAND_CHANNEL_ID and
             msg.author.id  == LOCATOR_BOT_ID and
-            len(msg.embeds) > 0
+            len(msg.embeds) > 0 and
+            (last_msg_id is None or msg.id > last_msg_id)
         )
 
-    listen_task = asyncio.ensure_future(
-        client.wait_for("message", check=check_msg, timeout=45)
-    )
-
-    await asyncio.sleep(1)
     await search_cmd(ch, input=product_name, sorting="Low to High", accessible="Accessible")
     print(f"✅ /search '{product_name}' gönderildi")
 
     try:
-        response = await listen_task
+        response = await asyncio.wait_for(
+            client.wait_for("message", check=check_msg),
+            timeout=40
+        )
     except asyncio.TimeoutError:
         print(f"⚠️ '{product_name}' için cevap gelmedi.")
         return []
 
-    all_items = []
-    for embed in response.embeds:
-        all_items.extend(parse_embed(embed))
-
+    all_items = parse_embed(response.embeds[0]) if response.embeds else []
     print(f"📦 {len(all_items)} item parse edildi")
 
     fresh   = [i for i in all_items if i["minutes_ago"] <= MAX_MINUTES]
     matched = [i for i in fresh if i["unit_price"] <= max_unit_price]
 
     print(f"⏱️ Son {MAX_MINUTES}dk: {len(fresh)} | 💰 Kriter: {len(matched)}")
+    for m in matched:
+        print(f"   ✅ {m['name']} → {m['display']} | {m['minutes_ago']} dk önce")
+
     return matched
 
 async def main():
     client  = discord.Client()
-    results = {}  # product_name -> matched items
+    results = {}
 
     @client.event
     async def on_ready():
@@ -164,10 +187,9 @@ async def main():
                 matched = await search_product(client, guild, ch, product_name, max_price)
                 if matched:
                     results[product_name] = matched
-                # Her ürün arasında 6 saniye bekle (son üründe bekleme)
                 if i < len(PRODUCTS) - 1:
-                    print(f"⏳ 6 saniye bekleniyor...")
-                    await asyncio.sleep(6)
+                    print(f"⏳ 12 saniye bekleniyor...")
+                    await asyncio.sleep(12)
 
             await client.close()
 
@@ -175,9 +197,8 @@ async def main():
 
     await client.start(DISCORD_TOKEN)
 
-    # Tüm sonuçları Telegram'a gönder
     if results:
-        msg_lines = ["🚨 <b>Uyarı! Kritere uyan itemlar bulundu:</b>\n"]
+        msg_lines = ["🚨 <b>Uyarı! Kritere uyan itemlar:</b>\n"]
         for product_name, items in results.items():
             msg_lines.append(f"📦 <b>{product_name.upper()}</b>")
             for i in sorted(items, key=lambda x: x["unit_price"]):
