@@ -31,6 +31,7 @@ PRODUCTS = [
     ("shifty block", 140.0),
     ("atm machine", 17.0),
     ("tavern sign", 4.0),
+    ("display box", 2.0),
     ("pillar",        2.0),
 ]
 
