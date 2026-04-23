@@ -32,6 +32,10 @@ PRODUCTS = [
     ("atm machine", 17.0),
     ("tavern sign", 4.0),
     ("display box", 2.0),
+    ("hover platform", 2.0),
+    ("wolf whistle", 35.0),
+    ("display shelf", 2.0),
+    ("ghost jar", 0.5),
     ("pillar",        2.0),
 ]
 
