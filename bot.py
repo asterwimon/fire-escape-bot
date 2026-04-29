@@ -19,7 +19,7 @@ MAX_MINUTES = 15
 # 2/1 = 0.5 para/item, 1/1 = 1.0, 45 = 45.0
 PRODUCTS = [
     ("fire escape",   0.5),
-    ("glowy block",   0.5),
+    ("glowy block",   1.0),
     ("xenoid block",  0.5),
     ("megaphone",     5000.0),
     ("vip entrance",  40.0),
