@@ -18,25 +18,25 @@ MAX_MINUTES = 15
 # Her ürün: (arama adı, max fiyat eşiği para/item olarak)
 # 2/1 = 0.5 para/item, 1/1 = 1.0, 45 = 45.0
 PRODUCTS = [
-    ("fire escape",   0.5),
-    ("glowy block",   1.0),
-    ("xenoid block",  0.5),
-    ("megaphone",     5000.0),
-    ("vip entrance",  40.0),
-    ("display block", 5.0),
-    ("digivend machine", 36.0),
-    ("vending machine", 17.0),
-    ("thermonuclear blast", 40.0),
-    ("laser grid seed", 0.25),
-    ("shifty block", 140.0),
-    ("atm machine", 17.0),
-    ("tavern sign", 3.0),
-    ("display box", 2.0),
-    ("hover platform", 2.0),
-    ("wolf whistle", 35.0),
-    ("display shelf", 2.0),
-    ("ghost jar", 0.5),
-    ("pillar",        2.0),
+    ("fire escape",         0.5,   "Low to High"),
+    ("glowy block",         1.0,   "Low to High"),
+    ("xenoid block",        0.5,   "Low to High"),
+    ("megaphone",           5000.0,"Recently Updated"),
+    ("vip entrance",        40.0,  "Low to High"),
+    ("display block",       5.0,   "Low to High"),
+    ("digivend machine",    36.0,  "Low to High"),
+    ("vending machine",     17.0,  "Low to High"),
+    ("thermonuclear blast", 40.0,  "Low to High"),
+    ("laser grid seed",     0.25,  "Low to High"),
+    ("shifty block",        140.0, "Low to High"),
+    ("atm machine",         17.0,  "Low to High"),
+    ("tavern sign",         3.0,   "Low to High"),
+    ("display box",         2.0,   "Low to High"),
+    ("hover platform",      2.0,   "Low to High"),
+    ("wolf whistle",        35.0,  "Low to High"),
+    ("display shelf",       2.0,   "Low to High"),
+    ("ghost jar",           0.5,   "Low to High"),
+    ("pillar",              2.0,   "Low to High"),
 ]
 
 def send_telegram(text: str):
@@ -105,7 +105,7 @@ def parse_embed(embed: discord.Embed):
         })
     return items
 
-async def search_product(client, guild, ch, product_name, max_unit_price):
+async def search_product(client, guild, ch, product_name, max_unit_price, sorting="Low to High"):
     print(f"\n🔍 Aranıyor: {product_name}")
 
     cmds = await guild.application_commands()
@@ -129,7 +129,7 @@ async def search_product(client, guild, ch, product_name, max_unit_price):
     )
 
     await asyncio.sleep(1)
-    await search_cmd(ch, input=product_name, sorting="Low to High", accessible="Accessible")
+    await search_cmd(ch, input=product_name, sorting=sorting, accessible="Accessible")
     print(f"✅ /search '{product_name}' gönderildi")
 
     try:
@@ -165,8 +165,8 @@ async def main():
             return
 
         async def run_all():
-            for i, (product_name, max_price) in enumerate(PRODUCTS):
-                matched = await search_product(client, guild, ch, product_name, max_price)
+            for i, (product_name, max_price, sorting) in enumerate(PRODUCTS):
+                matched = await search_product(client, guild, ch, product_name, max_price, sorting)
                 if matched:
                     results[product_name] = matched
                 # Her ürün arasında 6 saniye bekle (son üründe bekleme)
