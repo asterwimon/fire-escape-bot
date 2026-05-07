@@ -24,7 +24,7 @@ PRODUCTS = [
     ("megaphone",           5300.0,"Recently Updated"),
     ("vip entrance",        40.0,  "Low to High"),
     ("display block",       6.0,   "Low to High"),
-    ("digivend machine",    36.0,  "Low to High"),
+    ("digivend machine",    39.0,  "Low to High"),
     ("vending machine",     17.0,  "Low to High"),
     ("thermonuclear blast", 40.0,  "Low to High"),
     ("laser grid seed",     0.25,  "Low to High"),
