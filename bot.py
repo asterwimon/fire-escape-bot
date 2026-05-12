@@ -21,7 +21,7 @@ PRODUCTS = [
     ("fire escape",         0.5,   "Low to High"),
     ("glowy block",         1.0,   "Low to High"),
     ("xenoid block",        1.0,   "Low to High"),
-    ("megaphone",           5300.0,"Recently Updated"),
+    ("megaphone",           4200.0,"Recently Updated"),
     ("vip entrance",        40.0,  "Low to High"),
     ("display block",       6.0,   "Low to High"),
     ("digivend machine",    39.0,  "Low to High"),
